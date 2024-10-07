@@ -1,0 +1,105 @@
+
+
+# version: '3'
+# services:
+#   user-service:
+#     build:
+#       context: ./user-service
+#     ports:
+#       - "3000:3000"
+#     environment: 
+#       - RABBITMQ_HOST=172.17.0.2  # Replace with actual RabbitMQ container IP or hostname
+#       - RABBITMQ_PORT=5672
+
+#   product-service:
+#     build:
+#       context: ./product-service
+#     ports:
+#       - "3001:3001"
+#     environment:
+#       - RABBITMQ_HOST=172.17.0.2  # Replace with actual RabbitMQ container IP or hostname
+#       - RABBITMQ_PORT=5672
+
+#   order-service:
+#     build:
+#       context: ./order-service
+#     ports:
+#       - "3002:3002"
+#     environment:
+#       - RABBITMQ_HOST=172.17.0.2  # Replace with actual RabbitMQ container IP or hostname
+#       - RABBITMQ_PORT=5672
+
+#   graphql-gateway:
+#     build:
+#       context: ./graphql-gateway
+#     ports:
+#       - "4000:4000"
+#     depends_on:
+#       - user-service
+#       - product-service
+#       - order-service
+
+
+version: '3'
+services:
+  user-service:
+    container_name: user-service
+    build: ./user-service
+    ports:
+      - "3000:3000"
+    depends_on:
+      - rabbitmq
+    environment:
+      - RABBITMQ_URL=amqp://rabbitmq
+    networks:
+      - microservices-network
+
+  product-service:
+    container_name: product-service
+    build: ./product-service
+    ports:
+      - "3001:3001"
+    depends_on:
+      - rabbitmq
+    environment:
+      - RABBITMQ_URL=amqp://rabbitmq
+    networks:
+      - microservices-network
+
+  order-service:
+    container_name: order-service
+    build: ./order-service
+    ports:
+      - "3002:3002"
+    depends_on:
+      - rabbitmq
+    environment:
+      - RABBITMQ_URL=amqp://rabbitmq
+    networks:
+      - microservices-network
+
+  graphql-gateway:
+    container_name: graphql-gateway
+    build: ./graphql-gateway
+    ports:
+      - "4000:4000"
+    depends_on:
+      - user-service
+      - product-service
+      - order-service
+      - rabbitmq
+    networks:
+      - microservices-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq_service
+    ports:
+      - "5672:5672"    # RabbitMQ AMQP port
+      - "15672:15672"  # RabbitMQ Management UI port
+    networks:
+      - microservices-network
+
+networks:
+  microservices-network:
+    driver: bridge
