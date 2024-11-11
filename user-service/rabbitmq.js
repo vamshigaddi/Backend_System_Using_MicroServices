@@ -19,24 +19,6 @@ async function connectRabbitMQ() {
     }
 }
 
-// // Emit events to RabbitMQ
-// async function emitEvent(queueName, event) {
-//     try {
-//         if (!channel) {
-//             console.error("RabbitMQ channel is not ready, cannot emit event");
-//             return;
-//         }
-//         await channel.assertQueue(queueName, { durable: true });
-//         channel.sendToQueue(queueName, Buffer.from(JSON.stringify(event)), { persistent: true });
-//         console.log(`Event emitted to queue ${queueName}:`, event);
-//     } catch (err) {
-//         console.error("Failed to emit event", err);
-//     }
-// }
-
-
-
-
 async function emitEvent(queueName, event, retryCount = 5, delay = 1000) {
     try {
         if (!channel) {
